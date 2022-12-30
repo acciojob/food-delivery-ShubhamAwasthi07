@@ -1,5 +1,10 @@
 package com.driver.model.request;
 
+import lombok.Builder;
+
+import javax.persistence.Entity;
+
+
 public class OrderDetailsRequestModel {
 
 	private String[] items;

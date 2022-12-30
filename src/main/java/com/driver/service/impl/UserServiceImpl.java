@@ -4,138 +4,81 @@ import com.driver.io.entity.UserEntity;
 import com.driver.io.repository.UserRepository;
 import com.driver.service.UserService;
 import com.driver.shared.dto.UserDto;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
 
 
+    @Autowired
+    UserEntity userEntity;
+
     @Override
-    public UserDto createUser(UserDto user) throws Exception{
+    public UserDto createUser(UserDto user) throws Exception {
+        UserEntity userEntity= UserEntity.builder().id(user.getId())
+                .userId(user.getUserId()).firstName(user.getFirstName())
+                .lastName(user.getLastName()).email(user.getEmail()).build();
 
-
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-
-
-            throw new Exception("Record already exists!");
-        }
-
-
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
-
-        String publicUserId = String.valueOf(new SecureRandom());
-        userEntity.setUserId(publicUserId);
-
-
-        UserEntity storedUserDetails = userRepository.save(userEntity);
-
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
-
-
-        return returnValue;
+        userRepository.save(userEntity);
+        return user;
     }
-
 
     @Override
     public UserDto getUser(String email) throws Exception {
-
-
-        UserEntity userEntity = userRepository.findByEmail(email);
-
-        if (userEntity == null) {
-            throw new Exception(email);
-        }
-
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(userEntity, returnValue);
-
-
-        return returnValue;
+        UserEntity userEntity=userRepository.findByEmail(email);
+        UserDto userDto = UserDto.builder().id(userEntity.getId()).userId(userEntity.getUserId())
+                .email(userEntity.getEmail()).firstName(userEntity.getFirstName())
+                .lastName(userEntity.getLastName()).build();
+        return userDto;
     }
 
-    /**
-     * Get user by user id method
-     */
     @Override
     public UserDto getUserByUserId(String userId) throws Exception {
-
-
-        UserDto returnValue = new UserDto();
-        UserEntity userEntity = userRepository.findByUserId(userId);
-
-        if (userEntity == null) {
-
-
-            throw new Exception(userId);
-        }
-        BeanUtils.copyProperties(userEntity, returnValue);
-
-
-        return returnValue;
+        UserEntity userEntity=userRepository.findByUserId(userId);
+        UserDto userDto = UserDto.builder().id(userEntity.getId()).userId(userEntity.getUserId())
+                .email(userEntity.getEmail()).firstName(userEntity.getFirstName())
+                .lastName(userEntity.getLastName()).build();
+        return userDto;
     }
 
     @Override
     public UserDto updateUser(String userId, UserDto user) throws Exception {
-
-        UserDto returnValue = new UserDto();
-
-        UserEntity userEntity = userRepository.findByUserId(userId);
-
-        if (userEntity == null) {
-
-            throw new Exception(userId);
-        }
-
+        UserEntity userEntity=userRepository.findByUserId(userId);
+        userEntity.setId(user.getId());
+        userEntity.setUserId(user.getUserId());
+        userEntity.setEmail(user.getEmail());
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
 
-        UserEntity updatedUserDetails = userRepository.save(userEntity);
-        BeanUtils.copyProperties(updatedUserDetails, returnValue);
-
-        return returnValue;
+        UserDto userDto= UserDto.builder().email(userEntity.getEmail()).userId(userEntity.getUserId())
+                .firstName(userEntity.getFirstName()).lastName(userEntity.getLastName()).id(userEntity.getId())
+                .build();
+        return userDto;
     }
 
-    /**
-     * Delete use method
-     */
     @Override
     public void deleteUser(String userId) throws Exception {
-
-
-        UserEntity userEntity = userRepository.findByUserId(userId);
-
-        if (userEntity == null) {
-
-            throw new Exception(userId);
-        }
+        UserEntity userEntity=userRepository.findByUserId(userId);
         userRepository.delete(userEntity);
+
     }
 
     @Override
     public List<UserDto> getUsers() {
+        List<UserDto> list=new ArrayList<>();
 
-        List<UserDto> returnValue = new ArrayList<>();
-
-        Iterable<UserEntity> iterableObjects = userRepository.findAll();
-
-        for (UserEntity userEntity : iterableObjects) {
-            UserDto userDto = new UserDto();
-            BeanUtils.copyProperties(userEntity, userDto);
-            returnValue.add(userDto);
+        Iterable<UserEntity> list2=userRepository.findAll();
+        for(UserEntity user:list2){
+            UserDto userDto=UserDto.builder().id(user.getId()).userId(user.getUserId())
+                    .firstName(user.getFirstName()).lastName(user.getLastName())
+                    .email(user.getEmail()).build();
+            list.add(userDto);
         }
-        return returnValue;
+        return list;
     }
-
 }

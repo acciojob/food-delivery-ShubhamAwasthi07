@@ -1,5 +1,10 @@
 package com.driver.model.response;
 
+import lombok.Builder;
+
+import javax.persistence.Entity;
+
+
 public class FoodDetailsResponse {
 
 	private String foodId;

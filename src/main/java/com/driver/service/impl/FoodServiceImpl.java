@@ -1,76 +1,74 @@
 package com.driver.service.impl;
 
 import com.driver.io.entity.FoodEntity;
+import com.driver.io.entity.UserEntity;
 import com.driver.io.repository.FoodRepository;
 import com.driver.service.FoodService;
 import com.driver.shared.dto.FoodDto;
-import org.springframework.beans.BeanUtils;
+import com.driver.shared.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 public class FoodServiceImpl implements FoodService {
 
     @Autowired
     FoodRepository foodRepository;
+
     @Override
     public FoodDto createFood(FoodDto food) {
-        FoodEntity foodEntity = FoodEntity.builder().foodId(food.getFoodId()).foodCategory(food.getFoodCategory()).foodPrice(food.getFoodPrice()).foodName(food.getFoodName()).build();
-        foodRepository.save(foodEntity);
+        FoodEntity foodEntity=FoodEntity.builder().id(food.getId()).foodCategory(food.getFoodCategory())
+                .foodId(food.getFoodId()).foodName(food.getFoodName()).foodPrice(food.getFoodPrice())
+                .build();
         return food;
     }
 
     @Override
     public FoodDto getFoodById(String foodId) throws Exception {
-        FoodEntity foodEntity = foodRepository.findByFoodId(foodId);
-        if(foodEntity == null){
-            System.out.println("Food Entity doesn't exist");
-
-            return null;
-        }
-        FoodDto foodDto= FoodDto.builder().
-                id(foodEntity.getId()).
-                foodId(foodEntity.getFoodId()).
-                foodName(foodEntity.getFoodName()).
-                foodPrice(foodEntity.getFoodPrice()).
-                foodCategory(foodEntity.getFoodCategory()).
-                build();
+        FoodEntity food=foodRepository.findByFoodId(foodId);
+        FoodDto foodDto=FoodDto.builder().id(food.getId()).foodCategory(food.getFoodCategory())
+                .foodId(food.getFoodId()).foodName(food.getFoodName()).foodPrice(food.getFoodPrice())
+                .build();
 
         return foodDto;
     }
 
     @Override
     public FoodDto updateFoodDetails(String foodId, FoodDto foodDetails) throws Exception {
+        FoodEntity foodEntity=foodRepository.findByFoodId(foodId);
+        foodEntity.setFoodCategory(foodDetails.getFoodCategory());
+        foodEntity.setFoodId(foodDetails.getFoodId());
+        foodEntity.setFoodPrice(foodDetails.getFoodPrice());
+        foodEntity.setFoodName(foodDetails.getFoodName());
+        foodEntity.setId(foodDetails.getId());
 
-        return null;
+        FoodDto foodDto= FoodDto.builder()
+                .foodCategory(foodEntity.getFoodCategory()).foodId(foodEntity.getFoodId())
+                .foodName(foodEntity.getFoodName()).foodPrice(foodEntity.getFoodPrice())
+                .id(foodEntity.getId())
+                .build();
+
+        return foodDto;
     }
 
     @Override
     public void deleteFoodItem(String id) throws Exception {
-
-        FoodEntity foodEntity = foodRepository.findByFoodId(id);
-
-        if (foodEntity == null) {
-            throw new Exception(id);
-        }
-
+        FoodEntity foodEntity=foodRepository.findByFoodId(id);
         foodRepository.delete(foodEntity);
     }
 
     @Override
     public List<FoodDto> getFoods() {
-        List<FoodDto> returnValue = new ArrayList<>();
-        Iterable<FoodEntity> iterableObjects = foodRepository.findAll();
+        List<FoodDto> list=new ArrayList<>();
 
-        for (FoodEntity foodEntity : iterableObjects) {
-            FoodDto foodDto = null;
-            BeanUtils.copyProperties(foodEntity, foodDto);
-            returnValue.add(foodDto);
+        Iterable<FoodEntity> list2=foodRepository.findAll();
+        for(FoodEntity food:list2){
+            FoodDto foodDto=FoodDto.builder().id(food.getId()).foodId(food.getFoodId())
+                    .foodName(food.getFoodName()).foodCategory(food.getFoodCategory())
+                    .foodPrice(food.getFoodPrice()).build();
+            list.add(foodDto);
         }
-
-        return returnValue;
+        return list;
     }
 }

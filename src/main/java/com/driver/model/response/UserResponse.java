@@ -1,5 +1,13 @@
 package com.driver.model.response;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Getter;
+
+import javax.persistence.Entity;
+
+
 public class UserResponse {
 
 	private String userId;

@@ -1,7 +1,10 @@
 package com.driver.shared.dto;
 
+import lombok.Builder;
+
 import java.io.Serializable;
 
+@Builder
 public class OrderDto{
 
 	private long id;

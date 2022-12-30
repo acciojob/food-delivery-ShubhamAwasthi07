@@ -1,20 +1,17 @@
 package com.driver.service.impl;
 
 import com.driver.io.entity.OrderEntity;
+import com.driver.io.entity.UserEntity;
 import com.driver.io.repository.OrderRepository;
 import com.driver.service.OrderService;
 import com.driver.shared.dto.OrderDto;
-import org.modelmapper.ModelMapper;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
+import com.driver.shared.dto.UserDto;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -22,99 +19,57 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto createOrder(OrderDto order) {
+        OrderEntity orderEntity=OrderEntity.builder().id(order.getId()).orderId(order.getOrderId())
+                .items(order.getItems()).cost(order.getCost()).status(order.isStatus())
+                .userId(order.getUserId()).build();
+        orderRepository.save(orderEntity);
 
-
-
-        ModelMapper modelMapper = new ModelMapper();
-        OrderEntity orderEntity = modelMapper.map(order, OrderEntity.class);
-
-
-
-        String orderId = String.valueOf(new SecureRandom());
-        orderEntity.setOrderId(orderId);
-        orderEntity.setStatus(false);
-
-
-        OrderEntity storedOrder = orderRepository.save(orderEntity);
-        OrderDto returnValue = modelMapper.map(storedOrder, OrderDto.class);
-
-
-        return returnValue;
+        return order;
     }
 
-    /**
-     * Get order by order id method
-     */
     @Override
     public OrderDto getOrderById(String orderId) throws Exception {
+        OrderEntity order= orderRepository.findByOrderId(orderId);
+        OrderDto orderDto=OrderDto.builder().id(order.getId()).orderId(order.getOrderId())
+                .items(order.getItems()).cost(order.getCost()).status(order.isStatus())
+                .userId(order.getUserId()).build();
 
-
-        OrderDto returnValue = new OrderDto();
-        ModelMapper modelMapper = new ModelMapper();
-
-        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
-
-        if (orderEntity == null) {
-
-
-            throw new Exception(orderId);
-        }
-
-        returnValue = modelMapper.map(orderEntity, OrderDto.class);
-
-
-        return returnValue;
+        return orderDto ;
     }
 
-    /**
-     * Update food method
-     */
     @Override
     public OrderDto updateOrderDetails(String orderId, OrderDto order) throws Exception {
-
-
-        OrderDto returnValue = new OrderDto();
-        ModelMapper modelMapper = new ModelMapper();
-
-        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
-        if (orderEntity == null) {
-
-            throw new Exception(orderId);
-        }
+        OrderEntity orderEntity=orderRepository.findByOrderId(orderId);
+        orderEntity.setOrderId(order.getOrderId());
+        orderEntity.setId(order.getId());
         orderEntity.setCost(order.getCost());
+        orderEntity.setStatus(order.isStatus());
         orderEntity.setItems(order.getItems());
-        orderEntity.setStatus(true);
+        orderEntity.setUserId(order.getUserId());
 
-        OrderEntity updatedOrder = orderRepository.save(orderEntity);
-        returnValue = modelMapper.map(updatedOrder, OrderDto.class);
 
-        return returnValue;
+        return order;
     }
 
     @Override
-    public void deleteOrder(String orderId) throws Exception{
-
-        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
-        if (orderEntity == null) {
-            throw new Exception(orderId);
-        }
-
+    public void deleteOrder(String orderId) throws Exception {
+        OrderEntity orderEntity= orderRepository.findByOrderId(orderId);
         orderRepository.delete(orderEntity);
-
     }
+
     @Override
     public List<OrderDto> getOrders() {
-        List<OrderDto> returnValue = new ArrayList<>();
 
-        Iterable<OrderEntity> iteratableObjects = orderRepository.findAll();
+        List<OrderDto> list=new ArrayList<>();
 
-        for (OrderEntity orderEntity : iteratableObjects) {
-            OrderDto orderDto = new OrderDto();
-            BeanUtils.copyProperties(orderEntity, orderDto);
-            returnValue.add(orderDto);
+        Iterable<OrderEntity> list2=orderRepository.findAll();
+        for(OrderEntity order:list2){
+            OrderDto orderDto=OrderDto.builder().id(order.getId()).orderId(order.getOrderId())
+                    .cost(order.getCost()).userId(order.getUserId()).items(order.getItems())
+                    .status(order.isStatus()).build();
+            list.add(orderDto);
         }
+        return list;
 
-        return returnValue;
     }
-
 }
