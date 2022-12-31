@@ -1,17 +1,16 @@
 package com.driver.service.impl;
 
 import com.driver.io.entity.OrderEntity;
-import com.driver.io.entity.UserEntity;
 import com.driver.io.repository.OrderRepository;
 import com.driver.service.OrderService;
 import com.driver.shared.dto.OrderDto;
-import com.driver.shared.dto.UserDto;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -19,57 +18,83 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto createOrder(OrderDto order) {
-        OrderEntity orderEntity=OrderEntity.builder().id(order.getId()).orderId(order.getOrderId())
-                .items(order.getItems()).cost(order.getCost()).status(order.isStatus())
-                .userId(order.getUserId()).build();
-        orderRepository.save(orderEntity);
+        OrderEntity orderEntity = OrderEntity.builder()
+                .id(order.getId())
+                .orderId(order.getOrderId())
+                .cost(order.getCost())
+                .items(order.getItems())
+                .userId(order.getUserId())
+                .status(order.isStatus())
+                .build();
 
+        orderRepository.save(orderEntity);
         return order;
     }
 
     @Override
     public OrderDto getOrderById(String orderId) throws Exception {
-        OrderEntity order= orderRepository.findByOrderId(orderId);
-        OrderDto orderDto=OrderDto.builder().id(order.getId()).orderId(order.getOrderId())
-                .items(order.getItems()).cost(order.getCost()).status(order.isStatus())
-                .userId(order.getUserId()).build();
+        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
+        if(orderEntity==null){
+            throw new Exception("Order doesn't exist");
+        }
+        OrderDto orderDto = OrderDto.builder()
+                .id(orderEntity.getId())
+                .orderId(orderEntity.getOrderId())
+                .cost(orderEntity.getCost())
+                .items(orderEntity.getItems())
+                .userId(orderEntity.getUserId())
+                .status(orderEntity.isStatus())
+                .build();
 
-        return orderDto ;
+        return orderDto;
     }
 
     @Override
     public OrderDto updateOrderDetails(String orderId, OrderDto order) throws Exception {
-        OrderEntity orderEntity=orderRepository.findByOrderId(orderId);
-        orderEntity.setOrderId(order.getOrderId());
-        orderEntity.setId(order.getId());
-        orderEntity.setCost(order.getCost());
-        orderEntity.setStatus(order.isStatus());
-        orderEntity.setItems(order.getItems());
-        orderEntity.setUserId(order.getUserId());
-
-
-        return order;
+        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
+        if(orderEntity==null){
+            throw new Exception("Order doesn't exist");
+        }
+        OrderEntity orderEntity1 = OrderEntity.builder()
+                .id(order.getId())
+                .orderId(orderId)
+                .cost(order.getCost())
+                .items(order.getItems())
+                .userId(order.getUserId())
+                .status(order.isStatus())
+                .build();
+        orderRepository.save(orderEntity1);
+        return null;
     }
 
     @Override
     public void deleteOrder(String orderId) throws Exception {
-        OrderEntity orderEntity= orderRepository.findByOrderId(orderId);
-        orderRepository.delete(orderEntity);
+        OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
+        if(orderEntity==null){
+            throw new Exception("No Order with given order Id exists");
+        }
+        orderRepository.deleteById(orderEntity.getId());
     }
 
     @Override
     public List<OrderDto> getOrders() {
 
-        List<OrderDto> list=new ArrayList<>();
+        List<OrderEntity> list = (List) orderRepository.findAll();
+        List<OrderDto> ans = new ArrayList<>();
+        for(int i=0 ; i<list.size() ; i++){
+            OrderEntity orderEntity = list.get(i);
+            OrderDto orderDto = OrderDto.builder()
+                    .id(orderEntity.getId())
+                    .orderId(orderEntity.getOrderId())
+                    .items(orderEntity.getItems())
+                    .userId(orderEntity.getUserId())
+                    .status(orderEntity.isStatus())
+                    .cost(orderEntity.getCost())
+                    .build();
 
-        Iterable<OrderEntity> list2=orderRepository.findAll();
-        for(OrderEntity order:list2){
-            OrderDto orderDto=OrderDto.builder().id(order.getId()).orderId(order.getOrderId())
-                    .cost(order.getCost()).userId(order.getUserId()).items(order.getItems())
-                    .status(order.isStatus()).build();
-            list.add(orderDto);
+            ans.add(orderDto);
         }
-        return list;
 
+        return ans;
     }
 }

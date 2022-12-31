@@ -1,7 +1,6 @@
 package com.driver.io.entity;
 
-import com.driver.shared.dto.UserDto;
-import lombok.Builder;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -10,8 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Entity(name = "users")
 @Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity(name = "users")
 public class UserEntity{
 
 	@Id
@@ -69,5 +72,4 @@ public class UserEntity{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
 }

@@ -1,10 +1,15 @@
 package com.driver.model.response;
 
-import lombok.Builder;
+import lombok.*;
 
 import javax.persistence.Entity;
 
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class OperationStatusModel {
 
 	private String operationResult;
