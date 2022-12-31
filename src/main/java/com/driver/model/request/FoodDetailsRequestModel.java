@@ -1,10 +1,16 @@
 package com.driver.model.request;
 
-import lombok.Builder;
+import lombok.*;
 
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class FoodDetailsRequestModel {
 
 	private String foodName;

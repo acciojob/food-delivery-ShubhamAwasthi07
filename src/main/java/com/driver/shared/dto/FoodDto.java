@@ -1,7 +1,12 @@
 package com.driver.shared.dto;
 
-import lombok.Builder;
+import lombok.*;
 
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class FoodDto{
 

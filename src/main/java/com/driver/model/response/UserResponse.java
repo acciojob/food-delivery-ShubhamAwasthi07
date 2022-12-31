@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Builder
 public class UserResponse {
 
